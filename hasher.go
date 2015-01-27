@@ -357,6 +357,12 @@ func (g *Generator) buildHashtable(all []string) {
 	g.Printf("// github.com/tdewolff/hasher\n")
 	g.Printf("//go:generate hasher -type=%s -file=%s\n", *typeName, *fileName)
 	g.Printf("type %s uint32\n\n", *typeName)
+	g.Printf("const (\n")
+	for i, s := range all {
+		g.Printf("\t%s %s = %#x\n", orig[i], *typeName, hash[s])
+	}
+	g.Printf(")\n\n")
+
 	g.Printf(stringFunc, *typeName)
 	g.Printf(hashFunc, *typeName)
 	g.Printf("\nconst _%s_hash0 = %#x\n", *typeName, best.h0)
@@ -367,12 +373,6 @@ func (g *Generator) buildHashtable(all []string) {
 		text = text[60:]
 	}
 	g.Printf("\t%q\n\n", text)
-
-	g.Printf("const (\n")
-	for i, s := range all {
-		g.Printf("\t%s %s = %#x\n", orig[i], *typeName, hash[s])
-	}
-	g.Printf(")\n\n")
 	g.Printf("var _%s_table = [1<<%d]%s{\n", *typeName, best.k, *typeName)
 	for i, s := range best.tab {
 		if s == "" {

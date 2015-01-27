@@ -24,7 +24,20 @@ running this command
 	hasher -type=Pill -file=pills.go
 
 in the same directory will __OVERWRITE__ the same file with
-the const list itself (except for different values than iota), tables, hashes and the following definitions.
+the constant list itself (except for different values than `iota`), tables, hashes and conversion functions between `string` and `uint32`. The tool is thus one that reiterates over its own output! To add more keys after it ran, just add rows like:
+
+``` go
+	// ...
+	Aspirin     Pill = 0x7
+	Ibuprofen   Pill = 0x709
+	Paracetamol Pill = 0x100b
+	Placebo     Pill = 0x1b07
+	NewPillA Pill = 0
+	NewPillB Pill = 0
+	// ...
+```
+
+and rerun `hasher`!
 
 ## Usage
 Typically this process would be run using go generate, like this:

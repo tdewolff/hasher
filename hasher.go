@@ -101,7 +101,7 @@ type File struct {
 	pkg  *Package  // Package to which this file belongs.
 	file *ast.File // Parsed AST.
 	// These fields are reset for each type being generated.
-	typeName string  // Name of the constant type.
+	typeName string   // Name of the constant type.
 	values   []string // Accumulator for constant values of that type.
 }
 
@@ -247,7 +247,7 @@ func (g *Generator) buildHashtable(all []string) {
 				if x == '_' {
 					b[j] = '-'
 					if len(b) > j+1 {
-						b[j+1] = bytes.ToLower(b[j+1:j+2])[0]
+						b[j+1] = bytes.ToLower(b[j+1 : j+2])[0]
 					}
 				}
 			}

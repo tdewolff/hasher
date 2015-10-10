@@ -400,37 +400,31 @@ func To%[1]s(s []byte) %[1]s {
 	if len(s) == 0 || len(s) > _%[1]s_maxLen {
 		return 0
 	}
-	h := _%[1]s_fnv(s)
-	if i := _%[1]s_table[h&uint32(len(_%[1]s_table)-1)]; int(i&0xff) == len(s) && _%[1]s_match(_%[1]s_string(i), s) {
-		return i
-	}
-	if i := _%[1]s_table[(h>>16)&uint32(len(_%[1]s_table)-1)]; int(i&0xff) == len(s) && _%[1]s_match(_%[1]s_string(i), s) {
-		return i
-	}
-	return 0
-}
-
-// _%[1]s_fnv computes the FNV hash with an arbitrary starting value h.
-func _%[1]s_fnv(s []byte) uint32 {
 	h := uint32(_%[1]s_hash0)
 	for i := range s {
 		h ^= uint32(s[i])
 		h *= 16777619
 	}
-	return h
-}
-
-func _%[1]s_match(s string, t []byte) bool {
-	for i, c := range t {
-		if s[i] != c {
-			return false
+	if i := _%[1]s_table[h&uint32(len(_%[1]s_table)-1)]; int(i&0xff) == len(s) {
+		t := _%[1]s_text[i>>8 : i>>8+i&0xff]
+		for i, c := range s {
+			if t[i] != c {
+				goto NEXT
+			}
 		}
+		return i
 	}
-	return true
-}
-
-func _%[1]s_string(i %[1]s) string {
-	return _%[1]s_text[i>>8 : i>>8+i&0xff]
+NEXT:
+	if i := _%[1]s_table[(h>>16)&uint32(len(_%[1]s_table)-1)]; int(i&0xff) == len(s) {
+		t := _%[1]s_text[i>>8 : i>>8+i&0xff]
+		for i, c := range s {
+			if t[i] != c {
+				return 0
+			}
+		}
+		return i
+	}
+	return 0
 }
 `
 

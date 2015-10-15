@@ -394,7 +394,7 @@ func (i %[1]s) String() string {
 }
 `
 
-const hashFunc = `// Hash returns the hash whose name is s. It returns zero if there is no
+const hashFunc = `// To%[1]s returns the hash whose name is s. It returns zero if there is no
 // such hash. It is case sensitive.
 func To%[1]s(s []byte) %[1]s {
 	if len(s) == 0 || len(s) > _%[1]s_maxLen {

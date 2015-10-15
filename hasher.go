@@ -401,14 +401,14 @@ func To%[1]s(s []byte) %[1]s {
 		return 0
 	}
 	h := uint32(_%[1]s_hash0)
-	for i := range s {
+	for i := 0; i < len(s); i++ {
 		h ^= uint32(s[i])
 		h *= 16777619
 	}
 	if i := _%[1]s_table[h&uint32(len(_%[1]s_table)-1)]; int(i&0xff) == len(s) {
 		t := _%[1]s_text[i>>8 : i>>8+i&0xff]
-		for i, c := range s {
-			if t[i] != c {
+		for i := 0; i < len(s); i++ {
+			if t[i] != s[i] {
 				goto NEXT
 			}
 		}
@@ -417,8 +417,8 @@ func To%[1]s(s []byte) %[1]s {
 NEXT:
 	if i := _%[1]s_table[(h>>16)&uint32(len(_%[1]s_table)-1)]; int(i&0xff) == len(s) {
 		t := _%[1]s_text[i>>8 : i>>8+i&0xff]
-		for i, c := range s {
-			if t[i] != c {
+		for i := 0; i < len(s); i++ {
+			if t[i] != s[i] {
 				return 0
 			}
 		}

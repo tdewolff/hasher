@@ -355,8 +355,10 @@ func (g *Generator) buildHashtable(all []string) {
 	}
 
 	g.Printf("// uses github.com/tdewolff/hasher\n")
-	g.Printf("//go:generate hasher -type=%s -file=%s\n", *typeName, *fileName)
+	g.Printf("//go:generate hasher -type=%s -file=%s\n\n", *typeName, *fileName)
+	g.Printf("// %s defines perfect hashes for a predefined list of strings\n", *typeName)
 	g.Printf("type %s uint32\n\n", *typeName)
+	g.Printf("// Unique hash definitions to be used instead of strings\n")
 	g.Printf("const (\n")
 	for i, s := range all {
 		g.Printf("\t%s %s = %#x\n", orig[i], *typeName, hash[s])

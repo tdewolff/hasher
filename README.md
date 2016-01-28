@@ -1,7 +1,7 @@
 # Hasher
-Hasher is a tool to automate the creation of methods and tables for a string &#8594; uint32 mapper. It uses the fact that all keys are known apriori, allowing it to generate a very efficient hashtable.
+Hasher is a tool to automate the creation of methods and tables for a string &#8594; uint32 mapper. It uses the fact that all keys are known apriori, allowing it to generate a very efficient hashtable. It has been built to work with `go generate`. New keys can be added by appending more constants to the list and rerunning `hasher`. The new keys will be assigned new ID's. Running `hasher` changes _all_ ID's, so do not store them in a file or database!
 
-It is really just a copy-paste from https://github.com/golang/tools/blob/master/cmd/stringer/stringer.go and https://github.com/golang/net/tree/master/html/atom/gen.go with some tweaks. So nothing is really my work!
+It is really just a mix of https://github.com/golang/tools/blob/master/cmd/stringer and https://github.com/golang/net/tree/master/html/atom with some tweaks. So nothing is really my work!
 
 For example, given this snippet,
 ``` go
@@ -22,7 +22,7 @@ running this command
 
 	hasher -type=Pill -file=pill.go
 
-in the same directory will __OVERWRITE__ the same file with the constant list itself (except for different values than `iota`), tables, hashes and conversion functions between `string` and `uint32`. The tool is thus one that reiterates over its own output! To add more keys after it ran, just add rows like:
+in the same directory will __OVERWRITE__ the same file with the constant list itself (except for different values than `iota`), tables, hashes and conversion functions between `string` and `uint32`. The output file is thus also the input file, and the tool can run over it indefinitely! To add more keys to the table, just add more constants to the file:
 
 ``` go
 // ...

@@ -14,7 +14,7 @@ const (
 	Aspirin
 	Ibuprofen
 	Paracetamol
-	Acetaminophen = Paracetamol
+	Acid // lysergic-acid-diethlamide
 )
 ```
 
@@ -22,7 +22,33 @@ running this command
 
 	hasher -type=Pill -file=pill.go
 
-in the same directory will __OVERWRITE__ the same file with the constant list itself (except for different values than `iota`), tables, hashes and conversion functions between `string` and `uint32`. The output file is thus also the input file, and the tool can run over it indefinitely! To add more keys to the table, just add more constants to the file:
+in the same directory will __OVERWRITE__ the same file with the constant list itself (except with different values) and add tables, hashes and conversion functions between `string` and `uint32`. The output file is thus also the input file, and the tool can run over it indefinitely! This outputs
+
+``` go
+package painkiller
+
+// Pill defines perfect hashes for a predefined list of strings
+type Pill uint32
+
+// Unique hash definitions to be used instead of strings
+const (
+	Aspirin     Pill = 0x7    // aspirin
+	Ibuprofen   Pill = 0x709  // ibuprofen
+	Acid        Pill = 0x1a19 // lysergic-acid-diethlamide
+	Paracetamol Pill = 0x100b // paracetamol
+	Placebo     Pill = 0x3307 // placebo
+)
+
+func (i Pill) String() string { /* ... */ }
+
+func ToPill(s []byte) Pill { /* ... */ }
+
+/* ... */
+```
+
+### Amending
+
+To add more keys to the table, just add more constants to the file:
 
 ``` go
 // ...
@@ -30,12 +56,12 @@ Aspirin     Pill = 0x7
 Ibuprofen   Pill = 0x709
 Paracetamol Pill = 0x100b
 Placebo     Pill = 0x1b07
-NewPillA Pill = 0
-NewPillB Pill = 0
+NewPillA
+NewPillB
 // ...
 ```
 
-and rerun `hasher`!
+or update the constant name or the comment value and rerun `hasher`!
 
 ## Installation
 Run the following command
@@ -47,17 +73,19 @@ Typically this process would be run using go generate, like this:
 ``` go
 //go:generate hasher -type=Pill -file=pill.go
 ```
-but `hasher` adds that row itself too, so you can use the command-line just as well. Just make sure the file consists solely of the new type and the constants!
+but `hasher` adds that row itself too, so you can use the command-line just as well `hasher -type=Pill -file=pill.go`. Just make sure the file consists solely of the new type and the constants of that type, because it will be overwritten!
 
-It must have the -type and -file flag, that accepts a single type and filename respectively. The given file will be __OVERWRITTEN__.
+It must have the -type and -file flag, that accepts a single type and filename respectively.
 
 ## Lower- and uppercase and dashes
-The first uppercase of the constants is lowered and any uppercase after an underscore. Any underscore is replace by a dash. So that:
+By default, the first uppercase of the constants is lowered and any uppercase after an underscore. Any underscore is replace by a dash. So that:
 ``` go
 fmt.Print(painkiller.Aspirin) // aspirin
 fmt.Print(painkiller.StrongMorphine) // strongMorphine
 fmt.Print(painkiller.Amitriptyline_Gabapentin) // amitriptyline-gabapentin
 ```
+
+But you can specify the name explicitly in the comment after the constant. See the initial example.
 
 ## Hash to string
 Translate the value of a Pill constant to the string representation of the respective constant name, so that the call `fmt.Print(painkiller.Aspirin)` will print the string `"aspirin"`.

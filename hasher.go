@@ -70,7 +70,7 @@ func main() {
 	src := g.format()
 
 	// Write to file.
-	err = ioutil.WriteFile(*fileName, src, 0644)
+	err := ioutil.WriteFile(*fileName, src, 0644)
 	if err != nil {
 		log.Fatalf("writing output: %s", err)
 	}

@@ -16,6 +16,8 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"runtime"
+	"runtime/pprof"
 	"sort"
 	"strings"
 
@@ -41,6 +43,19 @@ func Usage() {
 }
 
 func main() {
+	runtime.SetCPUProfileRate(1000)
+	cpu, err := os.Create("prof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	heap, err := os.Create("heap")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(cpu)
+	defer pprof.StopCPUProfile()
+	defer pprof.WriteHeapProfile(heap)
+
 	log.SetFlags(0)
 	log.SetPrefix("hasher: ")
 	flag.Usage = Usage
@@ -70,7 +85,7 @@ func main() {
 	src := g.format()
 
 	// Write to file.
-	err := ioutil.WriteFile(*fileName, src, 0644)
+	err = ioutil.WriteFile(*fileName, src, 0644)
 	if err != nil {
 		log.Fatalf("writing output: %s", err)
 	}
@@ -96,13 +111,18 @@ func (g *Generator) Printf(format string, args ...interface{}) {
 	fmt.Fprintf(&g.buf, format, args...)
 }
 
+type Pair struct {
+	name string
+	text string
+}
+
 // File holds a single parsed file and associated data.
 type File struct {
 	pkg  *Package  // Package to which this file belongs.
 	file *ast.File // Parsed AST.
 	// These fields are reset for each type being generated.
-	typeName string   // Name of the constant type.
-	values   []string // Accumulator for constant values of that type.
+	typeName string // Name of the constant type.
+	pairs    []Pair // Accumulator for constant values of that type.
 }
 
 type Package struct {
@@ -123,7 +143,7 @@ func (g *Generator) parsePackage(directory string, name string, text interface{}
 	if !strings.HasSuffix(name, ".go") {
 		log.Fatalf("parsing package: %s: has no suffix .go", name)
 	}
-	astFile, err := parser.ParseFile(fs, name, text, 0)
+	astFile, err := parser.ParseFile(fs, name, text, parser.ParseComments)
 	if err != nil {
 		log.Fatalf("parsing package: %s: %s", name, err)
 	}
@@ -155,21 +175,20 @@ func (pkg *Package) check(fs *token.FileSet, astFile *ast.File) {
 
 // generate produces the String method for the named type.
 func (g *Generator) generate() {
-	values := []string{}
+	all := []Pair{}
 	file := g.pkg.file
 	// Set the state for this run of the walker.
 	file.typeName = *typeName
-	file.values = nil
+	file.pairs = nil
 	if file.file != nil {
 		ast.Inspect(file.file, file.genDecl)
-		values = file.values
+		all = file.pairs
 	}
 
-	if len(values) == 0 {
+	if len(all) == 0 {
 		log.Fatalf("no values defined for type %s", *typeName)
 	}
-	sort.Strings(values)
-	g.buildHashtable(values)
+	g.buildHashtable(all)
 }
 
 // format returns the gofmt-ed contents of the Generator's buffer.
@@ -219,29 +238,21 @@ func (f *File) genDecl(node ast.Node) bool {
 			// This is not the type we're looking for.
 			continue
 		}
+
+		var text string
+		if vspec.Comment != nil && len(vspec.Comment.List) > 0 && len(vspec.Comment.List[0].Text) > 2 {
+			text = strings.TrimSpace(vspec.Comment.List[0].Text[2:])
+		}
 		// We now have a list of names (from one line of source code) all being
 		// declared with the desired type.
 		// Grab their names and actual values and store them in f.values.
-		for _, name := range vspec.Names {
-			if name.Name == "_" {
-				continue
-			}
-			f.values = append(f.values, name.Name)
+		name := vspec.Names[0]
+		if name.Name == "_" {
+			continue
 		}
-	}
-	return false
-}
 
-// buildMap handles the case where the space is so sparse a map is a reasonable fallback.
-// It's a rare situation but has simple code.
-func (g *Generator) buildHashtable(all []string) {
-	orig := make([]string, len(all))
-	copy(orig, all)
-
-	// lowercase first character
-	for i, s := range all {
-		b := []byte(s)
-		if len(b) > 0 {
+		if len(text) == 0 && len(name.Name) > 0 {
+			b := []byte(name.Name)
 			b[0] = bytes.ToLower(b[:1])[0]
 			for j, x := range b {
 				if x == '_' {
@@ -251,24 +262,43 @@ func (g *Generator) buildHashtable(all []string) {
 					}
 				}
 			}
+			text = string(b)
 		}
-		all[i] = string(b)
+		f.pairs = append(f.pairs, Pair{name.Name, text})
 	}
+	return false
+}
+
+type byText []Pair
+
+func (x byText) Less(i, j int) bool { return x[i].text < x[j].text }
+func (x byText) Swap(i, j int)      { x[i], x[j] = x[j], x[i] }
+func (x byText) Len() int           { return len(x) }
+
+// buildMap handles the case where the space is so sparse a map is a reasonable fallback.
+// It's a rare situation but has simple code.
+func (g *Generator) buildHashtable(all []Pair) {
+	sort.Sort(byText(all))
 
 	// uniq - lists have dups
 	// compute max len too
 	maxLen := 0
 	w := 0
-	for _, s := range all {
-		if w == 0 || all[w-1] != s {
-			if maxLen < len(s) {
-				maxLen = len(s)
+	for _, pair := range all {
+		if w == 0 || all[w-1].text != pair.text {
+			if maxLen < len(pair.text) {
+				maxLen = len(pair.text)
 			}
-			all[w] = s
+			all[w].text = pair.text
 			w++
 		}
 	}
 	all = all[:w]
+
+	layout := make([]string, 0, len(all))
+	for i := 0; i < len(all); i++ {
+		layout = append(layout, all[i].text)
+	}
 
 	// Find hash that minimizes table size.
 	var best *table
@@ -282,7 +312,7 @@ func (g *Generator) buildHashtable(all []string) {
 				break
 			}
 			var t table
-			if t.init(h, k, all) {
+			if t.init(h, k, layout) {
 				best = &t
 				break
 			}
@@ -292,8 +322,6 @@ func (g *Generator) buildHashtable(all []string) {
 		fmt.Fprintf(os.Stderr, "failed to construct string table\n")
 		os.Exit(1)
 	}
-
-	layout := append([]string{}, all...)
 
 	// Remove strings that are substrings of other strings
 	for changed := true; changed; {
@@ -346,12 +374,12 @@ func (g *Generator) buildHashtable(all []string) {
 	text := strings.Join(layout, "")
 
 	hash := map[string]uint32{}
-	for _, s := range all {
-		off := strings.Index(text, s)
+	for _, pair := range all {
+		off := strings.Index(text, pair.text)
 		if off < 0 {
-			panic("lost string " + s)
+			panic("lost string " + pair.text)
 		}
-		hash[s] = uint32(off<<8 | len(s))
+		hash[pair.text] = uint32(off<<8 | len(pair.text))
 	}
 
 	g.Printf("// uses github.com/tdewolff/hasher\n")
@@ -360,8 +388,8 @@ func (g *Generator) buildHashtable(all []string) {
 	g.Printf("type %s uint32\n\n", *typeName)
 	g.Printf("// Unique hash definitions to be used instead of strings\n")
 	g.Printf("const (\n")
-	for i, s := range all {
-		g.Printf("\t%s %s = %#x\n", orig[i], *typeName, hash[s])
+	for _, pair := range all {
+		g.Printf("\t%s %s = %#x // %s\n", pair.name, *typeName, hash[pair.text], pair.text)
 	}
 	g.Printf(")\n\n")
 
@@ -431,12 +459,6 @@ NEXT:
 `
 
 ////////////////////////////////////////////////////////////////
-
-type byLen []string
-
-func (x byLen) Less(i, j int) bool { return len(x[i]) > len(x[j]) }
-func (x byLen) Swap(i, j int)      { x[i], x[j] = x[j], x[i] }
-func (x byLen) Len() int           { return len(x) }
 
 // fnv computes the FNV hash with an arbitrary starting value h.
 func fnv(h uint32, s string) uint32 {

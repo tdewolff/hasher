@@ -99,5 +99,10 @@ Translate a string to a value of a Pill constant with the same name. So that `To
 func ToPill(s []byte) Pill
 ```
 
+## Performance
+The tool might be slow for large batches of constants, because it can have difficulty finding a hash that minimizes the table. For example, [the parse.Html hash.go](https://github.com/tdewolff/parse/blob/master/html/hash.go) takes about 10 seconds.
+
+The performance of lookups depends on the use case. Because a call to `ToHash` always needs to check the result, it is slower than a direct string comparison and is `O(n)`. However, comparison of a hash (int) is very fast and `O(1)`.
+
 ## License
 Released under the [BSD license](LICENSE.md).

@@ -16,8 +16,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"runtime"
-	"runtime/pprof"
 	"sort"
 	"strings"
 
@@ -43,19 +41,6 @@ func Usage() {
 }
 
 func main() {
-	runtime.SetCPUProfileRate(1000)
-	cpu, err := os.Create("prof")
-	if err != nil {
-		log.Fatal(err)
-	}
-	heap, err := os.Create("heap")
-	if err != nil {
-		log.Fatal(err)
-	}
-	pprof.StartCPUProfile(cpu)
-	defer pprof.StopCPUProfile()
-	defer pprof.WriteHeapProfile(heap)
-
 	log.SetFlags(0)
 	log.SetPrefix("hasher: ")
 	flag.Usage = Usage

@@ -34,7 +34,7 @@ func Usage() {
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "\thasher -type T -file F\n")
 	fmt.Fprintf(os.Stderr, "For more information, see:\n")
-	fmt.Fprintf(os.Stderr, "\thttp://github.com/tdewolff/parse/cmd/hasher\n")
+	fmt.Fprintf(os.Stderr, "\thttp://github.com/tdewolff/hasher\n")
 	fmt.Fprintf(os.Stderr, "Flags:\n")
 	flag.PrintDefaults()
 	os.Exit(2)
@@ -378,8 +378,14 @@ func (g *Generator) buildHashtable(all []Pair) {
 	}
 	g.Printf(")\n\n")
 
+	g.Printf("var %[1]sMap = map[string]%[1]s{\n", *typeName)
+	for _, pair := range all {
+		g.Printf("\t\"%s\": %s,\n", pair.text, pair.name)
+	}
+	g.Printf("}\n\n")
+
 	g.Printf(stringFunc, *typeName)
-	g.Printf(hashFunc, *typeName)
+	g.Printf(hashFunc, *typeName, "To"+*typeName, "[]byte")
 	g.Printf("\nconst _%s_hash0 = %#x\n", *typeName, best.h0)
 	g.Printf("const _%s_maxLen = %d\n", *typeName, maxLen)
 	g.Printf("const _%s_text =", *typeName)
@@ -409,9 +415,9 @@ func (i %[1]s) String() string {
 }
 `
 
-const hashFunc = `// To%[1]s returns the hash whose name is s. It returns zero if there is no
+const hashFunc = `// %[2]s returns the hash whose name is s. It returns zero if there is no
 // such hash. It is case sensitive.
-func To%[1]s(s []byte) %[1]s {
+func %[2]s(s %[3]s) %[1]s {
 	if len(s) == 0 || len(s) > _%[1]s_maxLen {
 		return 0
 	}

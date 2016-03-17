@@ -378,11 +378,11 @@ func (g *Generator) buildHashtable(all []Pair) {
 	}
 	g.Printf(")\n\n")
 
-	g.Printf("var %[1]sMap = map[string]%[1]s{\n", *typeName)
-	for _, pair := range all {
-		g.Printf("\t\"%s\": %s,\n", pair.text, pair.name)
-	}
-	g.Printf("}\n\n")
+	// g.Printf("var %[1]sMap = map[string]%[1]s{\n", *typeName)
+	// for _, pair := range all {
+	// 	g.Printf("\t\"%s\": %s,\n", pair.text, pair.name)
+	// }
+	// g.Printf("}\n\n")
 
 	g.Printf(stringFunc, *typeName)
 	g.Printf(hashFunc, *typeName, "To"+*typeName, "[]byte")
@@ -390,10 +390,10 @@ func (g *Generator) buildHashtable(all []Pair) {
 	g.Printf("const _%s_maxLen = %d\n", *typeName, maxLen)
 	g.Printf("const _%s_text =", *typeName)
 	for len(text) > 60 {
-		g.Printf("\t%q +\n", text[:60])
+		g.Printf("%q +\n\t", text[:60])
 		text = text[60:]
 	}
-	g.Printf("\t%q\n\n", text)
+	g.Printf("%q\n\n", text)
 	g.Printf("var _%s_table = [1<<%d]%s{\n", *typeName, best.k, *typeName)
 	for i, s := range best.tab {
 		if s == "" {

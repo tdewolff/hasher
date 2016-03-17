@@ -77,10 +77,10 @@ func BenchmarkMatchHashedStrings(b *testing.B) {
 
 var h Hash
 
-func BenchmarkMapShort(b *testing.B) {
+func BenchmarkMap1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for k, _ := range HashMap {
-			if len(k) <= 5 {
+			if len(k) == 1 {
 				h = HashMap[k]
 			}
 		}
@@ -88,10 +88,10 @@ func BenchmarkMapShort(b *testing.B) {
 	h = 0
 }
 
-func BenchmarkHashShort(b *testing.B) {
+func BenchmarkHash1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for k, _ := range HashMap {
-			if len(k) <= 5 {
+			if len(k) == 1 {
 				h = ToHash(k)
 			}
 		}
@@ -99,10 +99,10 @@ func BenchmarkHashShort(b *testing.B) {
 	h = 0
 }
 
-func BenchmarkMapLong(b *testing.B) {
+func BenchmarkMap2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for k, _ := range HashMap {
-			if len(k) > 5 {
+			if len(k) == 2 {
 				h = HashMap[k]
 			}
 		}
@@ -110,10 +110,136 @@ func BenchmarkMapLong(b *testing.B) {
 	h = 0
 }
 
-func BenchmarkHashLong(b *testing.B) {
+func BenchmarkHash2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for k, _ := range HashMap {
-			if len(k) > 5 {
+			if len(k) == 2 {
+				h = ToHash(k)
+			}
+		}
+	}
+}
+
+func BenchmarkMap3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 3 {
+				h = HashMap[k]
+			}
+		}
+	}
+	h = 0
+}
+
+func BenchmarkHash3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 3 {
+				h = ToHash(k)
+			}
+		}
+	}
+}
+
+func BenchmarkMap4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 4 {
+				h = HashMap[k]
+			}
+		}
+	}
+	h = 0
+}
+
+func BenchmarkHash4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 4 {
+				h = ToHash(k)
+			}
+		}
+	}
+}
+
+func BenchmarkMap5(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 5 {
+				h = HashMap[k]
+			}
+		}
+	}
+	h = 0
+}
+
+func BenchmarkHash5(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 5 {
+				h = ToHash(k)
+			}
+		}
+	}
+}
+
+func BenchmarkMap6(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 6 {
+				h = HashMap[k]
+			}
+		}
+	}
+	h = 0
+}
+
+func BenchmarkHash6(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 6 {
+				h = ToHash(k)
+			}
+		}
+	}
+}
+
+func BenchmarkMap7(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 7 {
+				h = HashMap[k]
+			}
+		}
+	}
+	h = 0
+}
+
+func BenchmarkHash7(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 7 {
+				h = ToHash(k)
+			}
+		}
+	}
+}
+
+func BenchmarkMap8(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 8 {
+				h = HashMap[k]
+			}
+		}
+	}
+	h = 0
+}
+
+func BenchmarkHash8(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for k, _ := range HashMap {
+			if len(k) == 8 {
 				h = ToHash(k)
 			}
 		}

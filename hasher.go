@@ -12,16 +12,13 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
 	"sort"
 	"strings"
-
-	"golang.org/x/tools/go/types"
-
-	_ "golang.org/x/tools/go/gcimporter"
 )
 
 var (

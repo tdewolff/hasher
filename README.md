@@ -1,4 +1,6 @@
 # Hasher
+Uses https://github.com/dgryski/go-mph and https://github.com/dgryski/go-metro
+
 Hasher is a tool to automate the creation of methods and tables for a string &#8594; uint32 mapper. It uses the fact that all keys are known apriori, allowing it to generate a very efficient hashtable. It has been built to work with `go generate`. New keys can be added by appending more constants to the list and rerunning `hasher`. The new keys will be assigned new ID's. Running `hasher` changes _all_ ID's, so do not store them in a file or database!
 
 It is really a mix of https://github.com/golang/tools/blob/master/cmd/stringer and https://github.com/golang/net/tree/master/html/atom with some customization.

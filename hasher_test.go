@@ -1,247 +1,290 @@
 package main
 
-import "testing"
+import (
+	"testing"
 
-var keysMap = map[Hash]string{
-	A:               "a",
-	B:               "b",
-	Tr:              "tr",
-	Del:             "del",
-	Content:         "content",
-	Allowfullscreen: "allowfullscreen",
-	Contenteditable: "contenteditable",
-	DefaultSelected: "defaultSelected",
-	Formnovalidate:  "formnovalidate",
+	mphCespare "github.com/cespare/mph"
+	mphDgryski "github.com/dgryski/go-mph"
+)
+
+var bkeys, bkeys1, bkeys2, bkeys3, bkeys4, bkeys5, bkeys6, bkeys7, bkeys8 [][]byte
+var skeys, skeys1, skeys2, skeys3, skeys4, skeys5, skeys6, skeys7, skeys8 []string
+
+var mph1Table *mphCespare.Table
+var mph1KeyContent uint32
+
+var mph2Table *mphDgryski.Table
+var mph2KeyContent int32
+
+func init() {
+	for s := range HashMap {
+		bkeys = append(bkeys, []byte(s))
+		skeys = append(skeys, s)
+		if len(s) == 1 {
+			bkeys1 = append(bkeys1, []byte(s))
+			skeys1 = append(skeys1, s)
+		} else if len(s) == 2 {
+			bkeys2 = append(bkeys2, []byte(s))
+			skeys2 = append(skeys2, s)
+		} else if len(s) == 3 {
+			bkeys3 = append(bkeys3, []byte(s))
+			skeys3 = append(skeys3, s)
+		} else if len(s) == 4 {
+			bkeys4 = append(bkeys4, []byte(s))
+			skeys4 = append(skeys4, s)
+		} else if len(s) == 5 {
+			bkeys5 = append(bkeys5, []byte(s))
+			skeys5 = append(skeys5, s)
+		} else if len(s) == 6 {
+			bkeys6 = append(bkeys6, []byte(s))
+			skeys6 = append(skeys6, s)
+		} else if len(s) == 7 {
+			bkeys7 = append(bkeys7, []byte(s))
+			skeys7 = append(skeys7, s)
+		} else if len(s) == 8 {
+			bkeys8 = append(bkeys8, []byte(s))
+			skeys8 = append(skeys8, s)
+		}
+	}
+
+	mph1Table = mphCespare.Build(skeys)
+	mph1KeyContent, _ = mph1Table.Lookup("content")
+
+	mph2Table = mphDgryski.New(skeys)
+	mph2KeyContent = mph2Table.Query("content")
 }
 
-var vals = [][]byte{
-	[]byte("a"),
-	[]byte("b"),
-	[]byte("tr"),
-	[]byte("del"),
-	[]byte("content"),
-	[]byte("allowfullscreen"),
-	[]byte("contenteditable"),
-	[]byte("defaultSelected"),
-	[]byte("formnovalidate"),
-}
-
-var shortVals = [][]byte{
-	[]byte("a"),
-	[]byte("b"),
-	[]byte("tr"),
-	[]byte("del"),
-}
-
-var longVals = [][]byte{
-	[]byte("allowfullscreen"),
-	[]byte("contenteditable"),
-	[]byte("defaultSelected"),
-	[]byte("formnovalidate"),
-}
-
-func BenchmarkMatchStrings(b *testing.B) {
+func BenchmarkMatchString(b *testing.B) {
 	n := 0
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if k == "content" {
-				n++
-			}
+		j := i % len(skeys)
+		if skeys[j] == "content" {
+			n++
 		}
 	}
 }
 
-func BenchmarkMatchMappedStrings(b *testing.B) {
+func BenchmarkMatchMap(b *testing.B) {
 	n := 0
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			h := HashMap[k]
-			if h == Content {
-				n++
-			}
+		j := i % len(skeys)
+		if HashMap[skeys[j]] == Content {
+			n++
 		}
 	}
 }
 
-func BenchmarkMatchHashedStrings(b *testing.B) {
+func BenchmarkMatchHash(b *testing.B) {
 	n := 0
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			h := ToHash(k)
-			if h == Content {
-				n++
-			}
+		j := i % len(bkeys)
+		if ToHash(bkeys[j]) == Content {
+			n++
+		}
+	}
+}
+
+func BenchmarkMatchMPHCespare(b *testing.B) {
+	n := 0
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys)
+		if key, _ := mph1Table.Lookup(skeys[j]); key == mph1KeyContent {
+			n++
+		}
+	}
+}
+
+func BenchmarkMatchMPHDgryski(b *testing.B) {
+	n := 0
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys)
+		if mph2Table.Query(skeys[j]) == mph2KeyContent {
+			n++
 		}
 	}
 }
 
 var h Hash
+var k int32
 
-func BenchmarkMap1(b *testing.B) {
+func BenchmarkMap(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 1 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash1(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 1 {
-				h = ToHash(k)
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkMap2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 2 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 2 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(skeys)
+		h = HashMap[skeys[j]]
 	}
 }
 
-func BenchmarkMap3(b *testing.B) {
+func BenchmarkHash(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 3 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash3(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 3 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(bkeys)
+		h = ToHash(bkeys[j])
 	}
 }
 
-func BenchmarkMap4(b *testing.B) {
+func BenchmarkMapLen1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 4 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash4(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 4 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(skeys1)
+		h = HashMap[skeys1[j]]
 	}
 }
 
-func BenchmarkMap5(b *testing.B) {
+func BenchmarkMapLen2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 5 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash5(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 5 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(skeys2)
+		h = HashMap[skeys2[j]]
 	}
 }
 
-func BenchmarkMap6(b *testing.B) {
+func BenchmarkMapLen3(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 6 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash6(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 6 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(skeys3)
+		h = HashMap[skeys3[j]]
 	}
 }
 
-func BenchmarkMap7(b *testing.B) {
+func BenchmarkMapLen4(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 7 {
-				h = HashMap[k]
-			}
-		}
-	}
-	h = 0
-}
-
-func BenchmarkHash7(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 7 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(skeys4)
+		h = HashMap[skeys4[j]]
 	}
 }
 
-func BenchmarkMap8(b *testing.B) {
+func BenchmarkMapLen5(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 8 {
-				h = HashMap[k]
-			}
-		}
+		j := i % len(skeys5)
+		h = HashMap[skeys5[j]]
 	}
-	h = 0
 }
 
-func BenchmarkHash8(b *testing.B) {
+func BenchmarkMapLen6(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for k, _ := range HashMap {
-			if len(k) == 8 {
-				h = ToHash(k)
-			}
-		}
+		j := i % len(skeys6)
+		h = HashMap[skeys6[j]]
+	}
+}
+
+func BenchmarkMapLen7(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys7)
+		h = HashMap[skeys7[j]]
+	}
+}
+
+func BenchmarkMapLen8(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys8)
+		h = HashMap[skeys8[j]]
+	}
+}
+
+func BenchmarkHashLen1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys1)
+		h = ToHash(bkeys1[j])
+	}
+}
+
+func BenchmarkHashLen2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys2)
+		h = ToHash(bkeys2[j])
+	}
+}
+
+func BenchmarkHashLen3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys3)
+		h = ToHash(bkeys3[j])
+	}
+}
+
+func BenchmarkHashLen4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys4)
+		h = ToHash(bkeys4[j])
+	}
+}
+
+func BenchmarkHashLen5(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys5)
+		h = ToHash(bkeys5[j])
+	}
+}
+
+func BenchmarkHashLen6(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys6)
+		h = ToHash(bkeys6[j])
+	}
+}
+
+func BenchmarkHashLen7(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys7)
+		h = ToHash(bkeys7[j])
+	}
+}
+
+func BenchmarkHashLen8(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(bkeys8)
+		h = ToHash(bkeys8[j])
+	}
+}
+
+func BenchmarkDgryskiLen1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys1)
+		k = mph2Table.Query(skeys1[j])
+	}
+}
+
+func BenchmarkDgryskiLen2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys2)
+		k = mph2Table.Query(skeys2[j])
+	}
+}
+
+func BenchmarkDgryskiLen3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys3)
+		k = mph2Table.Query(skeys3[j])
+	}
+}
+
+func BenchmarkDgryskiLen4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys4)
+		k = mph2Table.Query(skeys4[j])
+	}
+}
+
+func BenchmarkDgryskiLen5(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys5)
+		k = mph2Table.Query(skeys5[j])
+	}
+}
+
+func BenchmarkDgryskiLen6(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys6)
+		k = mph2Table.Query(skeys6[j])
+	}
+}
+
+func BenchmarkDgryskiLen7(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys7)
+		k = mph2Table.Query(skeys7[j])
+	}
+}
+
+func BenchmarkDgryskiLen8(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		j := i % len(skeys8)
+		k = mph2Table.Query(skeys8[j])
 	}
 }

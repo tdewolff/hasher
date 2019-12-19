@@ -749,13 +749,21 @@ var HashMap = map[string]Hash{
 	"xmp":              Xmp,
 }
 
+// String returns the hash' name.
+func (i Hash) String() string {
+	start := uint32(i >> 8)
+	n := uint32(i & 0xff)
+	if start+n > uint32(len(_Hash_text)) {
+		return ""
+	}
+	return _Hash_text[start : start+n]
+}
+
 // ToHash returns the hash whose name is s. It returns zero if there is no
 // such hash. It is case sensitive.
-func ToHash(s string) Hash {
+func ToHash(s []byte) Hash {
 	if len(s) == 0 || len(s) > _Hash_maxLen {
 		return 0
-	} else if len(s) > 6 {
-		return HashMap[s]
 	}
 	h := uint32(_Hash_hash0)
 	for i := 0; i < len(s); i++ {

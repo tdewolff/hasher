@@ -1,7 +1,7 @@
 package main
 
 // uses github.com/tdewolff/hasher
-//go:generate hasher -type=Hash -file=testdata.go
+//go:generate hasher -type=Hash -file=data_test.go
 
 import "github.com/dgryski/go-metro"
 

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"math/rand"
 	"testing"
 
 	mphCespare "github.com/cespare/mph"
@@ -56,6 +58,21 @@ func init() {
 
 	mph2Table = mphDgryski.New(skeys)
 	mph2KeyContent = mph2Table.Query("content")
+}
+
+func TestCollision(t *testing.T) {
+	for i := 0; i < 1000; i++ {
+		n := rand.Intn(10)
+		b := make([]byte, n)
+		for j := 0; j < n; j++ {
+			b[j] = 'a' + byte(rand.Intn(int('z'-'a'+1)))
+		}
+
+		h := ToHash(b)
+		if !bytes.Equal(b, h.Bytes()) {
+			t.Errorf("bad: '%s' == %d == '%s'", string(b), h, string(h.Bytes()))
+		}
+	}
 }
 
 func BenchmarkMatchString(b *testing.B) {

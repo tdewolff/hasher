@@ -9,8 +9,6 @@ import (
 	mphDgryski "github.com/dgryski/go-mph"
 )
 
-var gomap = map[string]Hash{}
-
 var bkeys, bkeys1, bkeys2, bkeys3, bkeys4, bkeys5, bkeys6, bkeys7, bkeys8 [][]byte
 var skeys, skeys1, skeys2, skeys3, skeys4, skeys5, skeys6, skeys7, skeys8 []string
 
@@ -21,34 +19,32 @@ var mph2Table *mphDgryski.Table
 var mph2KeyContent int32
 
 func init() {
-	for i, b := range HashMap {
-		s := string(b)
-		gomap[s] = i
-		bkeys = append(bkeys, b)
+	for s := range HashMap {
+		bkeys = append(bkeys, []byte(s))
 		skeys = append(skeys, s)
 		if len(s) == 1 {
-			bkeys1 = append(bkeys1, b)
+			bkeys1 = append(bkeys1, []byte(s))
 			skeys1 = append(skeys1, s)
 		} else if len(s) == 2 {
-			bkeys2 = append(bkeys2, b)
+			bkeys2 = append(bkeys2, []byte(s))
 			skeys2 = append(skeys2, s)
 		} else if len(s) == 3 {
-			bkeys3 = append(bkeys3, b)
+			bkeys3 = append(bkeys3, []byte(s))
 			skeys3 = append(skeys3, s)
 		} else if len(s) == 4 {
-			bkeys4 = append(bkeys4, b)
+			bkeys4 = append(bkeys4, []byte(s))
 			skeys4 = append(skeys4, s)
 		} else if len(s) == 5 {
-			bkeys5 = append(bkeys5, b)
+			bkeys5 = append(bkeys5, []byte(s))
 			skeys5 = append(skeys5, s)
 		} else if len(s) == 6 {
-			bkeys6 = append(bkeys6, b)
+			bkeys6 = append(bkeys6, []byte(s))
 			skeys6 = append(skeys6, s)
 		} else if len(s) == 7 {
-			bkeys7 = append(bkeys7, b)
+			bkeys7 = append(bkeys7, []byte(s))
 			skeys7 = append(skeys7, s)
 		} else if len(s) == 8 {
-			bkeys8 = append(bkeys8, b)
+			bkeys8 = append(bkeys8, []byte(s))
 			skeys8 = append(skeys8, s)
 		}
 	}
@@ -89,7 +85,7 @@ func BenchmarkMatchMap(b *testing.B) {
 	n := 0
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys)
-		if gomap[skeys[j]] == Content {
+		if HashMap[skeys[j]] == Content {
 			n++
 		}
 	}
@@ -131,7 +127,7 @@ var k int32
 func BenchmarkMap(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys)
-		h = gomap[skeys[j]]
+		h = HashMap[skeys[j]]
 	}
 }
 
@@ -145,56 +141,56 @@ func BenchmarkHash(b *testing.B) {
 func BenchmarkMapLen1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys1)
-		h = gomap[skeys1[j]]
+		h = HashMap[skeys1[j]]
 	}
 }
 
 func BenchmarkMapLen2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys2)
-		h = gomap[skeys2[j]]
+		h = HashMap[skeys2[j]]
 	}
 }
 
 func BenchmarkMapLen3(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys3)
-		h = gomap[skeys3[j]]
+		h = HashMap[skeys3[j]]
 	}
 }
 
 func BenchmarkMapLen4(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys4)
-		h = gomap[skeys4[j]]
+		h = HashMap[skeys4[j]]
 	}
 }
 
 func BenchmarkMapLen5(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys5)
-		h = gomap[skeys5[j]]
+		h = HashMap[skeys5[j]]
 	}
 }
 
 func BenchmarkMapLen6(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys6)
-		h = gomap[skeys6[j]]
+		h = HashMap[skeys6[j]]
 	}
 }
 
 func BenchmarkMapLen7(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys7)
-		h = gomap[skeys7[j]]
+		h = HashMap[skeys7[j]]
 	}
 }
 
 func BenchmarkMapLen8(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		j := i % len(skeys8)
-		h = gomap[skeys8[j]]
+		h = HashMap[skeys8[j]]
 	}
 }
 

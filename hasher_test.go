@@ -65,7 +65,7 @@ func TestCollision(t *testing.T) {
 		}
 
 		h := ToHash(b)
-		if !bytes.Equal(b, h.Bytes()) {
+		if h != 0 && !bytes.Equal(b, h.Bytes()) {
 			t.Errorf("bad: '%s' == %d == '%s'", string(b), h, string(h.Bytes()))
 		}
 	}
@@ -250,58 +250,170 @@ func BenchmarkHashLen8(b *testing.B) {
 	}
 }
 
-func BenchmarkDgryskiLen1(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys1)
-		k = mph2Table.Query(skeys1[j])
-	}
-}
-
-func BenchmarkDgryskiLen2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys2)
-		k = mph2Table.Query(skeys2[j])
-	}
-}
-
-func BenchmarkDgryskiLen3(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys3)
-		k = mph2Table.Query(skeys3[j])
-	}
-}
-
-func BenchmarkDgryskiLen4(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys4)
-		k = mph2Table.Query(skeys4[j])
-	}
-}
-
-func BenchmarkDgryskiLen5(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys5)
-		k = mph2Table.Query(skeys5[j])
-	}
-}
-
-func BenchmarkDgryskiLen6(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys6)
-		k = mph2Table.Query(skeys6[j])
-	}
-}
-
-func BenchmarkDgryskiLen7(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys7)
-		k = mph2Table.Query(skeys7[j])
-	}
-}
-
-func BenchmarkDgryskiLen8(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		j := i % len(skeys8)
-		k = mph2Table.Query(skeys8[j])
-	}
-}
+//func BenchmarkHash2Len1(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys1)
+//		h = ToHash2(bkeys1[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len2(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys2)
+//		h = ToHash2(bkeys2[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len3(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys3)
+//		h = ToHash2(bkeys3[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len4(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys4)
+//		h = ToHash2(bkeys4[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len5(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys5)
+//		h = ToHash2(bkeys5[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len6(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys6)
+//		h = ToHash2(bkeys6[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len7(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys7)
+//		h = ToHash2(bkeys7[j])
+//	}
+//}
+//
+//func BenchmarkHash2Len8(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys8)
+//		h = ToHash2(bkeys8[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len1(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys1)
+//		h = ToHash3(bkeys1[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len2(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys2)
+//		h = ToHash3(bkeys2[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len3(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys3)
+//		h = ToHash3(bkeys3[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len4(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys4)
+//		h = ToHash3(bkeys4[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len5(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys5)
+//		h = ToHash3(bkeys5[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len6(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys6)
+//		h = ToHash3(bkeys6[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len7(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys7)
+//		h = ToHash3(bkeys7[j])
+//	}
+//}
+//
+//func BenchmarkHash3Len8(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys8)
+//		h = ToHash3(bkeys8[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen1(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys1)
+//		h = ToHashMetro(bkeys1[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen2(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys2)
+//		h = ToHashMetro(bkeys2[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen3(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys3)
+//		h = ToHashMetro(bkeys3[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen4(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys4)
+//		h = ToHashMetro(bkeys4[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen5(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys5)
+//		h = ToHashMetro(bkeys5[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen6(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys6)
+//		h = ToHashMetro(bkeys6[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen7(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys7)
+//		h = ToHashMetro(bkeys7[j])
+//	}
+//}
+//
+//func BenchmarkHashMetroLen8(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		j := i % len(bkeys8)
+//		h = ToHashMetro(bkeys8[j])
+//	}
+//}
